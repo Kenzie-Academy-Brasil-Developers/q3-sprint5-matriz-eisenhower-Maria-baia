@@ -1,3 +1,4 @@
+from asyncio import Task
 from flask import request, current_app, jsonify
 from app.models.tasks_model import TasksModel
 from app.models.eisenhowers_model import EisenhowersModel
@@ -133,6 +134,10 @@ def update_task(id):
 def delete_task(id):
     try:
         query = TasksModel.query.get(id)
+        query2 = TasksCategoriesModel.query.filter_by(task_id=id).all()
+
+        for i in query2:
+            current_app.db.session.delete(i)
 
         current_app.db.session.delete(query)
         current_app.db.session.commit()
@@ -140,4 +145,4 @@ def delete_task(id):
         return "", 204
     
     except UnmappedInstanceError:
-        return jsonify({"msg": "category not found!"}), 404
+        return jsonify({"msg": "task not found!"}), 404
